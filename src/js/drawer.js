@@ -1,13 +1,4 @@
-class Style {}
-
-export class TextStyle extends Style {
-  constructor({ color, fontSize, fontFamily }) {
-    super();
-    this.color = color;
-    this.fontSize = fontSize;
-    this.fontFamily = fontFamily;
-  }
-}
+import { TextStyle } from './style';
 
 class Drawer {
   static canvas = Drawer.getCanvas();

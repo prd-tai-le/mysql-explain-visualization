@@ -1,5 +1,15 @@
 import { Text, TextStyle } from './drawer';
 
+class ExplainSQLVisualization {
+    /**
+     * 
+     * @param {Object} jsonData 
+     */
+    constructor(jsonData) {
+        this.jsonData = jsonData;
+    }
+}
+
 console.log(Text.context);
 
 const test = new Text({
@@ -9,7 +19,7 @@ const test = new Text({
   style: new TextStyle({
     fontSize: '20px',
     fontFamily: 'Arial',
-  })
+  }),
 });
 test.draw();
 test.clearContext();
