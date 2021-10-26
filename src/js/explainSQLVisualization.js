@@ -1,25 +1,28 @@
-import { Text, TextStyle } from './drawer';
+import { Rectangle, Text } from './drawer';
+import { ShapeStyle, TextStyle } from './style';
 
 class ExplainSQLVisualization {
-    /**
-     * 
-     * @param {Object} jsonData 
-     */
-    constructor(jsonData) {
-        this.jsonData = jsonData;
-    }
+  /**
+   * @param {Object} jsonData 
+   */
+  constructor(jsonData) {
+    this.jsonData = jsonData;
+  }
 }
 
-console.log(Text.context);
-
-const test = new Text({
-  text: 'ABC',
-  x: 10,
-  y: 8,
-  style: new TextStyle({
-    fontSize: '20px',
-    fontFamily: 'Arial',
+const rectangle = new Rectangle({
+  from: [100, 100],
+  width: 100,
+  height: 50,
+  style: new ShapeStyle({
+    lineWidth: 6,
+    strokeStyle: 'red',
+  }),
+  text: new Text({
+    text: 'ABC',
+    style: new TextStyle({
+      font: '30px Arial',
+    }),
   }),
 });
-test.draw();
-test.clearContext();
+rectangle.draw();
