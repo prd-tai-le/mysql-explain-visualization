@@ -1,14 +1,22 @@
-class Style {
-  static context;
+class Style {}
 
-  constructor({ color, fontSize, backgroundColor, }) {
+export class TextStyle extends Style {
+  constructor({ color, fontSize, fontFamily }) {
+    super();
     this.color = color;
     this.fontSize = fontSize;
-    this.backgroundColor = backgroundColor;
+    this.fontFamily = fontFamily;
   }
 }
 
 class Drawer {
+  static canvas = Drawer.getCanvas();
+
+  /**
+   * @param {CanvasRenderingContext2D} context
+   */
+  static context = Drawer.getCanvasContext();
+
   /**
    * 
    * @param {Array} coordinates [[x, y], [2, 3], [3, 4]]
@@ -18,28 +26,47 @@ class Drawer {
     this.style = style;
   }
 
+  static getCanvas() {
+    return document.getElementById('canvas');
+  }
+
+  static getCanvasContext() {
+    const canvas = Drawer.getCanvas();
+    return canvas.getContext('2d');
+  }
+
   draw() {
     throw new Error('Implement this.');
   }
+
+  clearContext() {
+    Drawer.context.clearRect(0, 0, Drawer.canvas.width, Drawer.canvas.height);
+  }
 }
 
-class Text extends Drawer {
+export class Text extends Drawer {
   /**
    * 
    * @param {object} params 
    * @param {string} params.text
-   * @param {Style} params.style
+   * @param {TextStyle} params.style
    * @param {number} params.x
    * @param {number} params.y
    */
   constructor({ x, y, text, style }) {
     super([[x, y]], style);
     this.text = text;
-    this.color = color;
+  }
+
+  draw() {
+    const [coordinates] = this.coordinates;
+
+    Text.context.font = `${this.style.fontSize} ${this.style.fontFamily}`;
+    Text.context.fillText(this.text, coordinates[0], coordinates[1])
   }
 }
 
-class Rectangle extends Drawer {
+export class Rectangle extends Drawer {
   /**
    * 
    * @param {object} params
@@ -52,13 +79,6 @@ class Rectangle extends Drawer {
   }
 }
 
-class Arrow extends Drawer {
+export class Arrow extends Drawer {
 
 }
-
-const test = new Text({
-  text: 'ABC',
-  x: 10,
-  y: 8,
-});
-console.log(test.a);
