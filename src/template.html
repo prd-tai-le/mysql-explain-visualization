@@ -9,7 +9,34 @@
   </head>
 
   <body>
-    <div id="root"></div>
-    <canvas id="canvas" height="500" width="800"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'default',
+          securityLevel: 'antiscript',
+          flowchart: {
+            curve: 'linear',
+            diagramPadding: 0
+          },
+        });
+    </script>
+
+    Here is one mermaid diagram:
+    <div class="mermaid">
+      graph TD
+        campaignContactsPerm --> subquery1[subquery #3];
+        subquery1 --> attach_subqueries;
+        style attach_subqueries fill:#bbf,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+        attach_subqueries --> aiLead;
+        aiLead[aiLead<br>Non-Unique Key Lookup] ----> NestedLoop1{Nested loop};
+        NestedLoop1--> NestedLoop2{Nested loop};
+        areaPerm[aiLead<br>Non-Unique Key Lookup] ----> NestedLoop1{Nested loop};
+        disabledGrouped[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop2{Nested loop};
+        NestedLoop2[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop3{Nested loop};
+        NestedLoop3[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop4{Nested loop};
+        NestedLoop4[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop5{Nested loop};
+        NestedLoop5[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop6{Nested loop};
+    </div>
   </body>
 </html>

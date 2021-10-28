@@ -2,4 +2,5 @@
 import '@/styles/index.scss'
 
 // Import drawer
-import '@/js/explainSQLVisualization.js'
+// import '@/js/explainSQLVisualization.js'
+import '@/js/mermaidInitialization.js'

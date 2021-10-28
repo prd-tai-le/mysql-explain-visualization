@@ -31,8 +31,4 @@ export class Text extends Drawer {
       (fromY + toY) / 2,
     ]];
   }
-
-  autoScaleSizeInRectangle() {
-    
-  }
 }
