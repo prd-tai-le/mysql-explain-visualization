@@ -1,6 +1,12 @@
-import data from './sampleData2.json';
+import data from './sampleData1.json';
 
-function parseOperations(operations) {
+/**
+ * 
+ * @param {Array} operations 
+ * @param {Object} configs 
+ * @returns 
+ */
+function parseOperations(operations, configs = {}) {
   const queries = {};
 
   operations.forEach((table) => {
@@ -23,12 +29,11 @@ function getBoxContent(query) {
 }
 
 function renderFlowchart(renderingText) {
-  renderingText = `graph TD
-    ${renderingText}
-  `.trim();
+  renderingText = `graph TD;\n${renderingText}`.trim();
 
   const htmlElement = document.querySelector('.mermaid');
   htmlElement.innerHTML = renderingText;
+  console.log(renderingText);
 
   // mermaid.render('preparedScheme', renderingText, function (renderingText) {
   //   const htmlElement = document.querySelector('.mermaid');
@@ -42,12 +47,11 @@ function parseQueriesToVisualizationCode(queries, queryBlock) {
   const keys = Object.keys(queries);
 
   keys.forEach((_, index) => {
-    if (index == keys.length - 2) return;
-
     currentQuery = queries[keys[index]];
     const nextQuery = queries[keys[index + 1]];
+
     if (currentQuery && nextQuery) {
-      renderingText += `${getBoxContent(currentQuery)}--->${getBoxContent(nextQuery)}`;
+      renderingText += `${getBoxContent(currentQuery)}--->${getBoxContent(nextQuery)};\n`;
     }
   });
   renderingText += `${getBoxContent(currentQuery)}--->queryBlock${queryBlock.selectId}[query block #1];`;
