@@ -1,7 +1,7 @@
 import { NodeData, BinaryTree } from './data_structure';
 import MermaidUtils from '../utils/mermaid';
 
-export default class BaseExplainedDataParser {
+export default class ExplainedDataParser {
     /**
      * 
      * @param {Object} data 
@@ -18,7 +18,11 @@ export default class BaseExplainedDataParser {
     }
 
     build() {
-        return this._parseQueryBlockNode();
+        const root = this._parseQueryBlockNode();
+        let latestNode = this._parseOrderingNode(root, 'left') || root;
+        latestNode = this._parseNestedLoopNodes(latestNode) || latestNode;
+
+        return latestNode;
     }
 
     _parseQueryBlockNode() {
@@ -86,11 +90,14 @@ export default class BaseExplainedDataParser {
         }
 
         nestedLoop.reverse();
-        nestedLoop.forEach((query) => {
+        nestedLoop.forEach((query, index) => {
             const { id, name } = this._getNestedLoopNodeIdentifier();
             const nestedLoopNodeData = new NodeData(id, name, 'nested_loop', {});
-            parentNode = this.binaryTree.insert(nestedLoopNodeData, parentNode, 'left');
-
+            
+            // last table connects with the previous nested loop diamond
+            if (index != nestedLoop.length - 1) {
+                parentNode = this.binaryTree.insert(nestedLoopNodeData, parentNode, 'left');
+            }
             const tableNodeData = this.constructor._parseTableData(query);
             this.binaryTree.insert(tableNodeData, parentNode, 'right');
         });
@@ -116,8 +123,8 @@ export default class BaseExplainedDataParser {
             using_index: tableData.using_index,
             cost_info: tableData.cost_info,
         });
-        BaseExplainedDataParser._parseAttachedSubqueries();
-        BaseExplainedDataParser._parseMaterializedFromSubquery();
+        ExplainedDataParser._parseAttachedSubqueries();
+        ExplainedDataParser._parseMaterializedFromSubquery();
         // check attached_subqueries
         // check materialized_from_subquery
         return nodeData;
@@ -131,12 +138,24 @@ export default class BaseExplainedDataParser {
 
     }
 
+    /**
+     * @returns {String}
+     */
     buildMermaidContent() {
-        this.binaryTree.getNodesStack().forEach((node) => {
-            MermaidUtils.getBoxContent(node.data);
+        let content = '';
+        const nodes = this.binaryTree.getNodes();
+        nodes.reverse();
 
-            console.log(MermaidUtils.getBoxContent(node.data));
-        });
-        console.log(this.binaryTree.getNodesStack());
+        for (let i = 0; i < nodes.length; i += 1) {
+            const currentNode = nodes[i];
+            if (!currentNode.parentId) continue;
+
+            const previousNode = this.binaryTree.getNodeById(nodes[i].parentId);
+            const previousNodeBox = MermaidUtils.getBoxContent(previousNode.data);
+            const currentNodeBox = MermaidUtils.getBoxContent(currentNode.data);
+            content += `${currentNodeBox}--->${previousNodeBox};\n`;
+        }
+
+        return content;
     }
 }

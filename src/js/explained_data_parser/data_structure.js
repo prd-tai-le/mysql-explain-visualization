@@ -16,11 +16,11 @@ export class NodeData {
 export class Node {
     /**
      * @param {NodeData} data 
-     * @param {*} parent 
+     * @param {Node} parent 
      */
     constructor(data, parent = null) {
         this.data = data;
-        this.parent = parent ? parent.id : null;
+        this.parentId = parent ? parent.data.id : null;
         this.left = null;
         this.right = null;
     }
@@ -33,6 +33,7 @@ export class BinaryTree {
     constructor() {
         this.root = null;
         this.nodesStack = [];
+        this.nodesMap = {};
     }
 
     /**
@@ -40,7 +41,7 @@ export class BinaryTree {
      */
     setRoot(rootData) {
         this.root = new Node(rootData);
-        this.nodesStack.push(this.root);
+        this.setMap(this.root);
         return this.root;
     }
 
@@ -52,7 +53,7 @@ export class BinaryTree {
      */
     insert(data, node, direction) {
         const newNode = new Node(data, node);
-        this.nodesStack.push(newNode);
+        this.setMap(newNode);
 
         if (direction === 'left') {
             node.left = newNode;
@@ -64,10 +65,24 @@ export class BinaryTree {
     }
 
     /**
-     * Get stack for traversing
+     * @param {Node} node 
+     */
+    setMap(node) {
+        this.nodesMap[node.data.id] = node;
+    }
+
+    /**
      * @returns {Array[Node]}
      */
-    getNodesStack() {
-        return this.nodesStack;
+    getNodes() {
+        return Object.values(this.nodesMap);
+    }
+
+    /**
+     * Get stack for traversing
+     * @returns {Node?}
+     */
+    getNodeById(id) {
+        return this.nodesMap[id];
     }
 }
