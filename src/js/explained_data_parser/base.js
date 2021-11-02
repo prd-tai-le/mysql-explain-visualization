@@ -1,4 +1,5 @@
 import { NodeData, BinaryTree } from './data_structure';
+import MermaidUtils from '../utils/mermaid';
 
 export default class BaseExplainedDataParser {
     /**
@@ -22,7 +23,7 @@ export default class BaseExplainedDataParser {
 
     _parseQueryBlockNode() {
         const { query_block: queryBlockData } = this.data;
-        const { id, name } = this._getQueryBlockIdentifier();
+        const { id, name } = this._getQueryBlockIdentifier(queryBlockData.select_id);
         const nodeData = new NodeData(id, name, 'query_block', {
             cost_info: queryBlockData.cost_info,
         });
@@ -51,13 +52,9 @@ export default class BaseExplainedDataParser {
 
     _getNestedLoopNodeIdentifier() {
         return {
-            id: `nestedLoop#${++this.counters.ordering}`,
+            id: `nested_loop#${++this.counters.ordering}`,
             name: `Nested Loop`,
         };
-    }
-
-    _parseQueryBlockNode() {
-
     }
 
     /**
@@ -135,7 +132,11 @@ export default class BaseExplainedDataParser {
     }
 
     buildMermaidContent() {
-        
-        console.log(this.binaryTree);
+        this.binaryTree.getNodesStack().forEach((node) => {
+            MermaidUtils.getBoxContent(node.data);
+
+            console.log(MermaidUtils.getBoxContent(node.data));
+        });
+        console.log(this.binaryTree.getNodesStack());
     }
 }
