@@ -143,6 +143,7 @@ export default class ExplainedDataParser {
      */
     buildMermaidContent() {
         let content = '';
+        let eventContent = '';
         const nodes = this.binaryTree.getNodes();
         nodes.reverse();
 
@@ -154,8 +155,17 @@ export default class ExplainedDataParser {
             const previousNodeBox = MermaidUtils.getBoxContent(previousNode.data);
             const currentNodeBox = MermaidUtils.getBoxContent(currentNode.data);
             content += `${currentNodeBox}--->${previousNodeBox};\n`;
+            
+            const nodeEvent = `click ${previousNode.data.id} call listenNodeClickEvent("${previousNode.data.id}");\n`;
+            const nodeEvent2 = `click ${currentNode.data.id} call listenNodeClickEvent("${currentNode.data.id}");\n`;
+            if (eventContent.indexOf(nodeEvent) === -1) {
+                eventContent += nodeEvent;
+            }
+            if (eventContent.indexOf(nodeEvent2) === -1) {
+                eventContent += nodeEvent2;
+            }
         }
 
-        return content;
+        return `${content}\n${eventContent}`;
     }
 }

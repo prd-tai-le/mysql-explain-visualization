@@ -17,4 +17,8 @@ function renderFlowchart(renderingText) {
     // });
 }
 
+function listenNodeClickEvent() {
+    
+}
+
 renderFlowchart(content);

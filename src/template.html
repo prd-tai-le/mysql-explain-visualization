@@ -9,19 +9,6 @@
   </head>
 
   <body>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({
-          startOnLoad: true,
-          theme: 'default',
-          securityLevel: 'antiscript',
-          flowchart: {
-            curve: 'linear',
-            diagramPadding: 0
-          },
-        });
-    </script>
-
     <div class="mermaid">
       graph TD
         campaignContactsPerm --> subquery1[subquery #3];
@@ -36,6 +23,26 @@
         NestedLoop3[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop4{Nested loop};
         NestedLoop4[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop5{Nested loop};
         NestedLoop5[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop6{Nested loop};
+
+        click campaignContactsPerm call callback("Tooltip");
     </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'default',
+          securityLevel: 'loose',
+          flowchart: {
+            curve: 'linear',
+            diagramPadding: 0
+          },
+        });
+
+        function listenNodeClickEvent(id) {
+            console.log(id);
+        }
+    </script>
   </body>
 </html>

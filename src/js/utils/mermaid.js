@@ -7,9 +7,6 @@ export default class MermaidUtils {
      * @returns 
      */
     static getBoxContent(nodeData) {
-        console.log(nodeData);
-        return `
-            ${nodeData.id}[<b>${nodeData.displayName}</b><br>123]
-        `.trim();
+        return `${nodeData.id}[<b>${nodeData.displayName}</b><br>123]`.trim();
     }
 }
