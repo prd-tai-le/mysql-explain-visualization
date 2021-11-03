@@ -1,5 +1,5 @@
 import ExplainedDataParser from './explained_data_parser/parser';
-import sampleData from './sampleData1.json';
+import sampleData from './sampleData5.json';
 
 const dataParser = new ExplainedDataParser(sampleData);
 const content = dataParser.buildMermaidContent();

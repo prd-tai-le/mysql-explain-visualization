@@ -91,14 +91,16 @@ export default class ExplainedDataParser {
 
         nestedLoop.reverse();
         nestedLoop.forEach((query, index) => {
+            const tableNodeData = this.constructor._parseTableData(query);
             const { id, name } = this._getNestedLoopNodeIdentifier();
-            const nestedLoopNodeData = new NodeData(id, name, 'nested_loop', {});
+            const nestedLoopNodeData = new NodeData(id, name, 'nested_loop', {
+                query_cost: tableNodeData.query_cost,
+            });
             
             // last table connects with the previous nested loop diamond
             if (index != nestedLoop.length - 1) {
                 parentNode = this.binaryTree.insert(nestedLoopNodeData, parentNode, 'left');
             }
-            const tableNodeData = this.constructor._parseTableData(query);
             this.binaryTree.insert(tableNodeData, parentNode, 'right');
         });
 
