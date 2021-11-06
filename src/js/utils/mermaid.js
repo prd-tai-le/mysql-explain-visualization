@@ -11,19 +11,43 @@ export default class MermaidUtils {
 
         switch (type) {
             case 'table':
-                content = `${id}["<b>${displayName}</b><br><i>Query cost:</i> ${additionalData.cost_info.prefix_cost}<br><i>Index:</i> ${additionalData.key}"]`;
-                console.log(additionalData.key);
+                content = `${id}["<b>${displayName}</b><br>${MermaidUtils._getPrefixCostContent(additionalData)}<br>${MermaidUtils._getIndexContent(additionalData)}"]`;
                 break;
             case 'nested_loop':
-                content = `${id}[<b>${displayName}</b><br><i>Query cost:</i> ${additionalData.cost_info}<br><i>Rows:</i> 0]`;
+                // content = `${id}{"<b>${displayName}</b><br>${MermaidUtils._getPrefixCostContent(additionalData)}<br>${MermaidUtils._getTotalRows(additionalData)}"}`;
+                content = `${id}{"<b>${displayName}</b>"}`;
                 break;
             case 'query_block':
-                content = `${id}[<b>${displayName}</b><br><i>Query cost:</i> ${additionalData.cost_info.query_cost}<br>]`;
+                content = `${id}[<b>${displayName}</b><br>${MermaidUtils._getPrefixCostContent(additionalData, 'query_cost')}<br>]`;
                 break;
             default:
                 content = `${id}[<b>${displayName}</b>]`;
         }
 
         return content;
+    }
+
+    /**
+     * @param {Object} additionalData 
+     * @returns 
+     */
+    static _getPrefixCostContent(additionalData, key = 'prefix_cost') {
+        return `<i>Query cost:</i> ${additionalData.cost_info[key]}`;
+    }
+
+    /**
+     * @param {Object} additionalData 
+     * @returns 
+     */
+    static _getIndexContent(additionalData) {
+        return additionalData.key ? `<i>Index:</i> ${additionalData.key}` : '';
+    }
+
+    /**
+     * @param {Object} additionalData 
+     * @returns 
+     */
+     static _getTotalRows(additionalData) {
+        return `<i>Total rows:</i> ${additionalData.rows_produced_per_join}`;
     }
 }
