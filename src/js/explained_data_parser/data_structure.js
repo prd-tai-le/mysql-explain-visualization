@@ -5,7 +5,7 @@ export class NodeData {
      * @param {String} type 
      * @param {Object} additionalData 
      */
-    constructor(id, displayName, type, additionalData) {
+    constructor(id, displayName, type, additionalData = {}) {
         this.id = id;
         this.displayName = displayName;
         this.type = type;
@@ -24,20 +24,47 @@ export class Node {
         this.left = null;
         this.right = null;
     }
+
+    /**
+     * @param {Node} leftNode 
+     */
+    setLeft(leftNode) {
+        this.left = leftNode;
+    }
+
+    /**
+     * @param {Node} rightNode 
+     */
+    setRight(rightNode) {
+        this.right = rightNode;
+    }
+}
+
+export class MultibranchNode {
+    /**
+     * @param {NodeData} data 
+     * @param {Node} parent 
+     * @param {BinaryTree[]} children
+     */
+     constructor(data, children, parent = null) {
+        this.data = data;
+        this.parentId = parent ? parent.data.id : null;
+        this.children = children;
+    }
 }
 
 export class BinaryTree {
     /**
-     * 
+     * @param {NodeData} materializedData 
      */
-    constructor() {
+    constructor(materializedData) {
         this.root = null;
-        this.nodesStack = [];
         this.nodesMap = {};
+        this.materializedData = materializedData;
     }
 
     /**
-     * @param {Node} root 
+     * @param {NodeData} rootData 
      */
     setRoot(rootData) {
         this.root = new Node(rootData);
@@ -46,20 +73,48 @@ export class BinaryTree {
     }
 
     /**
-     * 
-     * @param {Any} data 
-     * @param {Object} node 
+     * @param {NodeData} data 
+     * @param {Node} parent 
      * @param {String} direction 
      */
-    insert(data, node, direction) {
-        const newNode = new Node(data, node);
+    insert(data, parent, direction) {
+        const newNode = new Node(data, parent);
         this.setMap(newNode);
 
         if (direction === 'left') {
-            node.left = newNode;
+            parent.setLeft(newNode);
         } else if (direction === 'right') {
-            node.right = newNode;
+            parent.setRight(newNode);
         }
+
+        return newNode;
+    }
+
+    /**
+     * @param {BinaryTree} data 
+     * @param {Node} parent 
+     * @param {String} direction 
+     */
+    insertTree(tree, parent, direction) {
+        this.setMap(tree);
+
+        if (direction === 'left') {
+            parent.setLeft(tree);
+        } else if (direction === 'right') {
+            parent.setRight(tree);
+        }
+
+        return tree;
+    }
+
+    /**
+     * @param {Any} data 
+     * @param {Node} parent 
+     * @param {String} direction 
+     */
+     insertMultibranchNode(data, children, parent) {
+        const newNode = new MultibranchNode(data, children, parent);
+        this.setMap(newNode);
 
         return newNode;
     }
@@ -68,7 +123,11 @@ export class BinaryTree {
      * @param {Node} node 
      */
     setMap(node) {
-        this.nodesMap[node.data.id] = node;
+        if (node instanceof BinaryTree && node.materializedData) {
+            this.nodesMap[node.materializedData.id] = node;
+        } else {
+            this.nodesMap[node.data.id] = node;
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ export default class MermaidUtils {
      */
     static getBoxContent({ id, type, displayName, additionalData }) {
         let content;
+        let style;
 
         switch (type) {
             case 'table':
@@ -20,11 +21,15 @@ export default class MermaidUtils {
             case 'query_block':
                 content = `${id}[<b>${displayName}</b><br>${MermaidUtils._getPrefixCostContent(additionalData, 'query_cost')}<br>]`;
                 break;
+            case 'attached_subqueries':
+                content = `${id}[<b>${displayName}</b>]`;
+                style = `style ${id} stroke:#000,stroke-width:3px,stroke-dasharray: 5 5`;
+                break;
             default:
                 content = `${id}[<b>${displayName}</b>]`;
         }
 
-        return content;
+        return [content, style];
     }
 
     /**

@@ -1,28 +1,26 @@
-import { NodeData, BinaryTree } from './data_structure';
+import { NodeData, BinaryTree, MultibranchNode } from './data_structure';
 import MermaidUtils from '../utils/mermaid';
+import CommonUtils from '../utils/common';
+import PopupContentUtils from '../utils/popup-content';
 
 export default class ExplainedDataParser {
     /**
-     * 
-     * @param {Object} data 
+     * @param {Object} data: JSON data
+     * @param {String} idPrefix: Prefix string
+     * @param {NodeData} materializedData: Data from materializing
      */
-    constructor(data) {
-        this.binaryTree = new BinaryTree();
+    constructor(data, idPrefix = null, materializedData = null) {
+        this.binaryTree = new BinaryTree(materializedData);
         this.data = data;
         this.currentDataLevel = null;
-        this.counters = {
-            ordering: 0,
-            nestedLoop: 0,
-        };
-        this.build();
+        this.idPrefix = idPrefix ? `${idPrefix}#` : '';
     }
 
     build() {
         const root = this._parseQueryBlockNode();
         let latestNode = this._parseOrderingNode(root, 'left') || root;
         latestNode = this._parseNestedLoopNodes(latestNode) || latestNode;
-
-        return latestNode;
+        latestNode = this._parseTableNode(latestNode, 'left') || latestNode;
     }
 
     /**
@@ -47,21 +45,9 @@ export default class ExplainedDataParser {
      */
     _getQueryBlockIdentifier(selectId) {
         return {
-            id: `query_block#${selectId}`,
+            id: `${this.idPrefix}query_block-${CommonUtils.randomString()}`,
             name: `Query Block #${selectId}`,
         };
-    }
-
-    /**
-     * @param {NodeData} nodeData 
-     * @return {String}
-     */
-    _getQueryBlockContent(nodeData) {
-        return `
-            <h6 class="node__title">Query Block</h6>
-            <p>- Select ID: ${nodeData.additionalData.select_id}</p>
-            <p>- Query cost: ${nodeData.additionalData.cost_info.query_cost}</p>
-        `;
     }
 
     /**
@@ -69,7 +55,7 @@ export default class ExplainedDataParser {
      * @param {Object} orderingOperation 
      * @param {Node} node
      */
-     _parseOrderingNode(parentNode, insertDirection) {
+    _parseOrderingNode(parentNode, insertDirection) {
         const { ordering_operation: orderingOperation } = this.currentDataLevel;
 
         if (orderingOperation) {
@@ -79,7 +65,7 @@ export default class ExplainedDataParser {
             });
             const currentNode = this.binaryTree.insert(nodeData, parentNode, insertDirection);
             this.currentDataLevel = orderingOperation;
-            
+
             return currentNode;
         }
         return null;
@@ -90,20 +76,9 @@ export default class ExplainedDataParser {
      */
     _getOrderingIdentifier() {
         return {
-            id: `ordering#${++this.counters.ordering}`,
+            id: `${this.idPrefix}ordering-${CommonUtils.randomString()}`,
             name: `Ordering`,
         };
-    }
-
-    /**
-     * @param {NodeData} nodeData 
-     * @return {String}
-     */
-    _getOrderingContent(nodeData) {
-        return `
-            <h6 class="node__title">Ordering Operation</h6>
-            <p>Using Filesort: ${nodeData.additionalData.using_filesort ? 'True' : 'False'}</p>
-        `;
     }
 
     _parseNestedLoopNodes(parentNode) {
@@ -114,7 +89,7 @@ export default class ExplainedDataParser {
         }
         nestedLoop.reverse();
         nestedLoop.forEach((query, index) => {
-            const tableNodeData = this.constructor._parseTableData(query);
+            const tableNodeData = this._parseTableData(query);
             const { id, name } = this._getNestedLoopNodeIdentifier();
             const nestedLoopNodeData = new NodeData(id, name, 'nested_loop', {
                 cost_info: tableNodeData.additionalData.cost_info,
@@ -124,80 +99,104 @@ export default class ExplainedDataParser {
             if (index != nestedLoop.length - 1) {
                 parentNode = this.binaryTree.insert(nestedLoopNodeData, parentNode, 'left');
             }
-            this.binaryTree.insert(tableNodeData, parentNode, 'right');
+            const tableNode = this.binaryTree.insert(tableNodeData, parentNode, 'right');
+            this._parseAttachedSubqueriesNodes(tableNode, query.table);
+            this._parseMaterializedFromSubquery(tableNode, query.table);
         });
 
         return parentNode;
     }
 
-    /**
-     * @param {NodeData} nodeData 
-     * @return {String}
-     */
-    _getNestedLoopContent(nodeData) {
-        return `
-            <h6 class="node__title">Nested Loop</h6>
-            <p>Prefix cost: ${nodeData.additionalData.cost_info.prefix_cost}</p>
-        `;
-    }
-
     _getNestedLoopNodeIdentifier() {
         return {
-            id: `nested_loop#${++this.counters.ordering}`,
+            id: `${this.idPrefix}nested_loop-${CommonUtils.randomString()}`,
             name: `Nested Loop`,
         };
     }
 
     /**
      * Because this method is used dynamically, we shouldn't insert anything to the tree
-     * @param {Object} data
+     * @param {NodeData} data
      */
-    static _parseTableData(data) {
+    _parseTableData(data) {
         const { table: tableData } = data;
-        const { table_name: id, table_name: name } = tableData;
+        const { id, name } = this._getTableIdentifier(tableData.table_name);
         const nodeData = new NodeData(id, name, 'table', { ...tableData });
-        ExplainedDataParser._parseAttachedSubqueries();
-        ExplainedDataParser._parseMaterializedFromSubquery();
-        // check attached_subqueries
+        // ExplainedDataParser._parseMaterializedFromSubquery();
         // check materialized_from_subquery
         return nodeData;
     }
 
     /**
-     * @param {NodeData} nodeData 
-     * @return {String}
+     * @param {Node} parentNode 
+     * @param {String} insertDirection 
+     * @returns {Node?}
      */
-    _getTableContent(nodeData) {
-        const { additionalData, displayName } = nodeData;
+    _parseTableNode(parentNode, insertDirection) {
+        const { table: table } = this.currentDataLevel;
 
-        return `
-            <h6 class="node__title">${displayName}</h6>
-            <p>- Access Type: ${additionalData.access_type}</p>
-            <p>- Used Columns: ${additionalData.used_columns.join(', ')}</p>
-            
-            <br>
-            <h6 class="node__title">Key/Index: ${additionalData.key}</h6>
-            ${additionalData.ref ? `<p>- Ref: ${additionalData.ref.join(', ')}</p>` : ''}
-            ${additionalData.used_key_parts ? `<p>- Used Key Parts: ${additionalData.used_key_parts.join(', ')}</p>` : ''}
-            ${additionalData.possible_keys ? `<p>- Possible Keys: ${additionalData.possible_keys.join(', ')}</p>` : ''}
+        if (table) {
+            const nodeData = this._parseTableData(this.currentDataLevel);
+            const currentNode = this.binaryTree.insert(nodeData, parentNode, insertDirection);
+            this.currentDataLevel = table;
+            this._parseAttachedSubqueriesNodes(currentNode, table);
+            this._parseMaterializedFromSubquery(currentNode, table);
 
-            <br>
-            <p>- Rows Examined Per Scan: ${additionalData.rows_examined_per_scan}</p>
-            <p>- Rows Produced Per Scan: ${additionalData.rows_produced_per_join}</p>
-
-            <br>
-            <h6 class="node__title">Cost Info</h6>
-            <p>- Read: ${additionalData.cost_info.read_cost}</p>
-            <p>- Eval: ${additionalData.cost_info.eval_cost}</p>
-        `;
+            return currentNode;
+        }
+        return null;
     }
 
-    static _parseAttachedSubqueries() {
-
+    /**
+     * @param {String} tableName 
+     * @returns {Object}
+     */
+    _getTableIdentifier(tableName) {
+        return {
+            id: `${this.idPrefix}${tableName}-${CommonUtils.randomString()}`,
+            name: tableName,
+        };
     }
 
-    static _parseMaterializedFromSubquery() {
+    /**
+     * 
+     * @param {Node|MultibranchNode} parentNode 
+     * @param {MultibranchNode?} tableData 
+     * @returns 
+     */
+    _parseAttachedSubqueriesNodes(parentNode, tableData) {
+        const { attached_subqueries: attachedSubqueries } = tableData;
 
+        if (attachedSubqueries) {
+            const idPrefix = `${this.idPrefix}${parentNode.data.id}#subqueries`;
+            const multibranchNodeData = new NodeData(idPrefix, 'Attached Subqueries', 'attached_subqueries');
+            const trees = attachedSubqueries.map((subqueryData, index) => {
+                const dataParser = new ExplainedDataParser(subqueryData, `${idPrefix}#${index}`);
+                dataParser.build();
+
+                return dataParser.binaryTree;
+            });
+            this.binaryTree.insertMultibranchNode(multibranchNodeData, trees, parentNode);
+
+            return multibranchNodeData;
+        }
+        return null;
+    }
+
+    _parseMaterializedFromSubquery(parentNode, tableData) {
+        const { materialized_from_subquery: materializedFromSubquery } = tableData;
+
+        if (materializedFromSubquery) {
+            const idPrefix = `${this.idPrefix}${parentNode.data.id}#materialized_from_subquery`;
+            const nodeData = new NodeData(idPrefix, `${parentNode.data.displayName} (Materialized)`, 'materialized_from_subquery');
+
+            const dataParser = new ExplainedDataParser(materializedFromSubquery, idPrefix, nodeData);
+            dataParser.build();
+            this.binaryTree.insertTree(dataParser.binaryTree, parentNode, parentNode);
+
+            // return multibranchNodeData;
+        }
+        return null;
     }
 
     /**
@@ -205,25 +204,48 @@ export default class ExplainedDataParser {
      * @returns 
      */
     getExplainContentById(id) {
-        const nodeData = this.binaryTree.getNodeById(id).data;
+        let node;
+        let nodesMap = this.binaryTree.nodesMap;
+        const segments = id.split('#');
+        const newSegments = [];
+
+        segments.forEach((segment) => {
+            if (segment === 'subqueries') { // put materialized... here
+                newSegments[newSegments.length - 1] += `#${segment}`;
+            } else {
+                newSegments.push(segment);
+            }
+        });
+
+        newSegments.forEach((segment, index) => {
+            if (index === newSegments.length - 1) {
+                node = nodesMap[id];
+                return;
+            }
+            if (!nodesMap[segment]) {
+                segment = parseInt(segment, 10);
+                nodesMap = node.children[segment].nodesMap;
+            } else {
+                node = nodesMap[segment];
+            }
+        });
         let content;
 
-        switch (nodeData.type) {
+        switch (node.data.type) {
             case 'nested_loop':
-                content = this._getNestedLoopContent(nodeData);
+                content = PopupContentUtils.getNestedLoopContent(node.data);
                 break;
             case 'ordering':
-                content = this._getOrderingContent(nodeData);
+                content = PopupContentUtils.getOrderingContent(node.data);
                 break;
             case 'query_block':
-                content = this._getQueryBlockContent(nodeData);
+                content = PopupContentUtils.getQueryBlockContent(node.data);
                 break;
             case 'table':
-                content = this._getTableContent(nodeData);
+                content = PopupContentUtils.getTableContent(node.data);
                 break;
         }
         content = content ? content.trim() : null;
-        console.log(nodeData, content ? content.trim() : null);
 
         return content;
     }
@@ -231,21 +253,37 @@ export default class ExplainedDataParser {
     /**
      * @returns {String}
      */
-    buildMermaidContent() {
+    buildMermaidContent(binaryTree = null) {
+        binaryTree = binaryTree || this.binaryTree;
+
         let content = '';
-        const nodes = this.binaryTree.getNodes();
+        let style = '';
+        const nodes = binaryTree.getNodes();
         nodes.reverse();
 
         for (let i = 0; i < nodes.length; i += 1) {
             const currentNode = nodes[i];
             if (!currentNode.parentId) continue;
 
-            const previousNode = this.binaryTree.getNodeById(nodes[i].parentId);
-            const previousNodeBox = MermaidUtils.getBoxContent(previousNode.data);
-            const currentNodeBox = MermaidUtils.getBoxContent(currentNode.data);
-            content += `${currentNodeBox}-->${previousNodeBox};\n`;
-        }
+            const previousNode = binaryTree.getNodeById(nodes[i].parentId);
+            const [prevNodeBox, prevNodeStyle] = MermaidUtils.getBoxContent(previousNode.data);
+            const [currentNodeBox, currentNodeStyle] = MermaidUtils.getBoxContent(currentNode.data);
 
-        return `${content}`;
+            content += `${currentNodeBox}-->${prevNodeBox}\n`;
+            style += prevNodeStyle ? `${prevNodeStyle}\n` : '';
+            style += currentNodeStyle ? `${currentNodeStyle}\n` : '';
+
+            if (currentNode instanceof MultibranchNode) {
+                currentNode.children.forEach((subTree) => {
+                    const content2 = this.buildMermaidContent(subTree);
+                    const [rootSubTree, _] = MermaidUtils.getBoxContent(subTree.getNodes()[0].data);
+
+                    content += `\n${content2}`;
+                    content += `${rootSubTree}-->${currentNodeBox}\n`;
+                });
+            }
+        }
+        return content;
+        return `${content}\n\n${style}`;
     }
 }
