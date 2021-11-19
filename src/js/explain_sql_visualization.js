@@ -4,7 +4,7 @@ import sampleData from './sampleData5.json';
 const dataParser = new ExplainedDataParser(sampleData);
 dataParser.build();
 const content = dataParser.buildMermaidContent();
-// console.log(dataParser.binaryTree);
+console.log(dataParser.binaryTree);
 
 function renderFlowchart(renderingText) {
     renderingText = `graph BT;\n${renderingText}`.trim();
@@ -17,11 +17,11 @@ function renderFlowchart(renderingText) {
             const keys = $(element).attr('id').split('-');
             const newKeys = keys.splice(1, keys.length - 2);
             const key = newKeys.join('-');
-            const content = dataParser.getExplainContentById(key);
+            const explainContent = dataParser.getExplainContentById(key);
 
-            if (content) {
+            if (explainContent) {
                 $(element).attr('data-toggle', 'popover');
-                $(element).attr('data-content', content);
+                $(element).attr('data-content', explainContent);
                 $(element).attr('data-html', 'true');
             }
         });

@@ -11,6 +11,9 @@
     "no-self-compare": 1,
     "import/prefer-default-export": 0,
     "arrow-body-style": 1,
+    "no-param-reassign": 0,
+    "no-underscore-dangle": 0,
+    "no-continue": 0,
     "import/no-extraneous-dependencies": ["off", { "devDependencies": false }]
   },
   "env": {
