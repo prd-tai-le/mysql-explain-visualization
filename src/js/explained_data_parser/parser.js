@@ -4,6 +4,8 @@ import CommonUtils from '../utils/common';
 import PopupContentUtils from '../utils/popup-content';
 
 export default class ExplainedDataParser {
+    static subgraphIndex = 0;
+
   /**
    * @param {Object} data: JSON data
    * @param {String} idPrefix: Prefix string
@@ -270,9 +272,11 @@ export default class ExplainedDataParser {
       if (currentNode instanceof BinaryTree) {
         const previousNode = binaryTree.getNodeById(nodes[i].parentId);
         const [currentNodeBox,] = MermaidUtils.getBoxContent(previousNode.data);
-        // console.log(123123);
-        const content2 = this.buildMermaidContent(currentNode);
         const [rootSubTree,] = MermaidUtils.getBoxContent(currentNode.getNodes()[0].data);
+        // console.log(123123);
+        let content2 = this.buildMermaidContent(currentNode);
+        content2 += `\nsubgraph ${ExplainedDataParser.subgraphIndex++};\n${content2}end;`;
+        console.log(content2);
         content += `\n${content2}`;
         content += `${rootSubTree}-->${currentNodeBox}\n`;
       } else {
