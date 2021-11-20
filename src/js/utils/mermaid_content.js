@@ -1,4 +1,4 @@
-import { NodeData } from '../explained_data_parser/data_structure';
+import { NodeData } from './data_structure';
 import CommonUtils from './common';
 
 export default class MermaidUtils {
@@ -67,6 +67,13 @@ export default class MermaidUtils {
     return style
   }
 
+  /**
+   * @Docs https://dev.mysql.com/doc/workbench/en/wb-performance-explain.html
+   * @param id
+   * @param accessType
+   * @returns {string}
+   * @private
+   */
   static _getTableStyle(id, { access_type: accessType }) {
     let style;
 

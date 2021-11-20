@@ -1,4 +1,8 @@
 export default class CommonUtils {
+  /**
+   * @param {number} length
+   * @returns {string}
+   */
   static randomString(length = 3) {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

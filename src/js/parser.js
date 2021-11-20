@@ -1,6 +1,6 @@
-import { NodeData, BinaryTree, MultibranchNode } from './data_structure';
-import MermaidUtils from '../utils/mermaid';
-import PopupContentUtils from '../utils/popup-content';
+import { NodeData, BinaryTree, MultibranchNode } from './utils/data_structure';
+import MermaidUtils from './utils/mermaid_content';
+import PopupContentUtils from './utils/popup_content';
 
 export default class ExplainedDataParser {
   /**

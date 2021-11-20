@@ -1,4 +1,4 @@
-import ExplainedDataParser from './explained_data_parser/parser';
+import ExplainedDataParser from './parser';
 import sampleData from './union-all-with-distinct.json';
 
 const dataParser = new ExplainedDataParser(sampleData);
@@ -10,8 +10,6 @@ function renderFlowchart(renderingText) {
   renderingText = `graph BT;\n${renderingText}`.trim();
   const htmlElement = document.querySelector('.mermaid');
   htmlElement.innerHTML = renderingText;
-
-  console.log(renderingText);
 
   setTimeout(() => {
     $('.node').each((_, element) => {
