@@ -56,12 +56,12 @@ export class MultibranchNode {
 
 export class BinaryTree {
   /**
-   * @param {NodeData} materializedData
+   * @param {NodeData} nodeData
    */
-  constructor(materializedData) {
+  constructor(nodeData) {
     this.root = null;
     this.nodesMap = {};
-    this.materializedData = materializedData;
+    this.nodeData = nodeData;
     this.parentId = null;
   }
 
@@ -126,8 +126,8 @@ export class BinaryTree {
    * @param {Node|MultibranchNode|BinaryTree} node
    */
   setMap(node) {
-    if (node instanceof BinaryTree && node.materializedData) {
-      this.nodesMap[node.materializedData.id] = node;
+    if (node instanceof BinaryTree && node.nodeData) {
+      this.nodesMap[node.nodeData.id] = node;
     } else {
       this.nodesMap[node.data.id] = node;
     }
@@ -146,5 +146,12 @@ export class BinaryTree {
    */
   getNodeById(id) {
     return this.nodesMap[id];
+  }
+
+  /**
+   * @returns {NodeData}
+   */
+  getNodeData() {
+    return this.nodeData;
   }
 }
