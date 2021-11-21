@@ -28,21 +28,11 @@
 
 <body>
 <div class="mermaid">
-  graph TD
-  campaignContactsPerm --> subquery1[subquery #3];
-  subquery1 --> attach_subqueries;
-  style attach_subqueries fill:#bbf,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
-  attach_subqueries --> aiLead;
-  aiLead[aiLead<br>Non-Unique Key Lookup] ----> NestedLoop1{Nested loop};
-  NestedLoop1--> NestedLoop2{Nested loop};
-  areaPerm[aiLead<br>Non-Unique Key Lookup] ----> NestedLoop1{Nested loop};
-  disabledGrouped[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop2{Nested loop};
-  NestedLoop2[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop3{Nested loop};
-  NestedLoop3[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop4{Nested loop};
-  NestedLoop4[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop5{Nested loop};
-  NestedLoop5[<b>aiLead</b><br>Non-Unique Key Lookup] --> NestedLoop6{Nested loop};
+  graph BT;
+  ABC-pt2["<b>ABC</b><br><i>Query cost:</i> 737.00<br><i>Index:</i> BCD_is_valid_139e97715daf4370_uniq"]-->query_block1-3mp[<b>Query Block #1</b><br><i>Query cost:</i> 5935.00<br>]
 
-  click campaignContactsPerm call callback("Tooltip");
+  style query_block1-3mp fill:#b3b3b3, stroke:#000, stroke-width:2px
+  style ABC-pt2 fill:#b93236,stroke:#000,color:#fff
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

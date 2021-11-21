@@ -9,7 +9,7 @@ export default class PopupContentUtils {
     return `
       <h6 class='node__title'>${displayName}</h6>
       <p>- Access Type: ${additionalData.access_type}</p>
-      <p>- Used Columns: ${additionalData.used_columns.join(', ')}</p>
+      ${additionalData.used_columns ? `<p>- Used Columns: ${additionalData.used_columns.join(', ')}</p>` : ''}
       
       ${additionalData.key ? `<br>` : ''}
       ${additionalData.key ? `<h6 class='node__title'>Key/Index: ${additionalData.key}</h6>` : ''}

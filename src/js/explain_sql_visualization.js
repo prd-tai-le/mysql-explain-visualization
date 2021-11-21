@@ -1,5 +1,5 @@
 import ExplainedDataParser from './parser';
-import sampleData from './union-all-with-distinct.json';
+import sampleData from './sampleData2.json';
 
 const dataParser = new ExplainedDataParser(sampleData);
 dataParser.build();
