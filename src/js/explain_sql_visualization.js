@@ -1,22 +1,20 @@
 import ExplainedDataParser from './parser';
-import sampleData from './sampleData2.json';
 
-const dataParser = new ExplainedDataParser(sampleData);
-dataParser.build();
-const content = dataParser.buildMermaidContent();
-console.log(dataParser.binaryTree);
-
-function renderFlowchart(renderingText) {
+function renderFlowchart(parser) {
+  let renderingText = parser.buildMermaidContent();
   renderingText = `graph BT;\n${renderingText}`.trim();
+
   const htmlElement = document.querySelector('.mermaid');
-  htmlElement.innerHTML = renderingText;
+  mermaid.mermaidAPI.render('mermaid', renderingText, (svgCode) => {
+    htmlElement.innerHTML = svgCode;
+  });
 
   setTimeout(() => {
     $('.node').each((_, element) => {
       const keys = $(element).attr('id').split('-');
       const newKeys = keys.splice(1, keys.length - 2);
       const key = newKeys.join('-');
-      const explainContent = dataParser.getExplainContentById(key);
+      const explainContent = parser.getExplainContentById(key);
 
       if (explainContent) {
         $(element).attr('data-toggle', 'popover');
@@ -28,4 +26,14 @@ function renderFlowchart(renderingText) {
   }, 1000);
 }
 
-renderFlowchart(content);
+editor.getSession().on('change', () => {
+  const dataString = editor.getSession().getValue();
+  try {
+    const data = JSON.parse(dataString);
+    const parser = new ExplainedDataParser(data);
+    parser.build();
+    renderFlowchart(parser);
+  } catch {
+    console.log('Failed to decode');
+  }
+});

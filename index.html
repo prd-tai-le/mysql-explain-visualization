@@ -10,29 +10,73 @@
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
         crossorigin="anonymous">
-  <style>
-    .node {
-      cursor: pointer;
-    }
-
-    p {
-      margin: 0;
-    }
-
-    .node__title {
-      font-weight: bold;
-      margin: 0;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/styles/main.css">
 </head>
-
 <body>
-<div class="mermaid">
-  graph BT;
-  ABC-pt2["<b>ABC</b><br><i>Query cost:</i> 737.00<br><i>Index:</i> BCD_is_valid_139e97715daf4370_uniq"]-->query_block1-3mp[<b>Query Block #1</b><br><i>Query cost:</i> 5935.00<br>]
+<header>
+  <div class="container">
+    <h1 class="font-size-4">MySQL Explain Visualization</h1>
+    <h2>Turns text into UML sequence diagrams</h2>
+  </div>
 
-  style query_block1-3mp fill:#b3b3b3, stroke:#000, stroke-width:2px
-  style ABC-pt2 fill:#b93236,stroke:#000,color:#fff
+  <a href="https://github.com/bramp/js-sequence-diagrams">
+    <img class="gh-forkme" src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub">
+  </a>
+</header>
+
+<div class="container mt-4" id="main">
+  <div class="row">
+    <div class="col-md-8">
+      <h3>Demo. Try editing me below</h3>
+
+      <div id="editor">{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "5935.00"
+    },
+    "table": {
+      "table_name": "ABC",
+      "access_type": "index",
+      "key": "BCD_is_valid_139e97715daf4370_uniq",
+      "used_key_parts": [
+        "is_valid"
+      ],
+      "key_length": "1",
+      "rows_examined_per_scan": 25990,
+      "rows_produced_per_join": 25990,
+      "filtered": "100.00",
+      "using_index": true,
+      "cost_info": {
+        "read_cost": "737.00",
+        "eval_cost": "5198.00",
+        "prefix_cost": "5935.00",
+        "data_read_per_join": "811M"
+      }
+    }
+  }
+}</div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="d-flex align-items-center text-center h-100">
+        <img src="static/assets/wb-visual-explain.png" alt="" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="text-center mt-4">
+  <h4 class="font-weight-bold mb-3">Output</h4>
+  <div class="mermaid">
+    graph BT;
+    ABC-pt2["<b>ABC</b><br><i>Query cost:</i> 737.00<br><i>Index:</i>
+    BCD_is_valid_139e97715daf4370_uniq"]-->query_block1-3mp[<b>Query Block #1</b><br><i>Query cost:</i> 5935.00<br>]
+
+    style query_block1-3mp fill:#b3b3b3, stroke:#000, stroke-width:2px
+    style ABC-pt2 fill:#b93236,stroke:#000,color:#fff
+  </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -45,18 +89,24 @@
         integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script defer="defer" src="static/js/runtime.bundle.js"></script>
-<script defer="defer" src="static/js/main.bundle.js"></script>
+<script src="https://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js"></script>
 <script>
   mermaid.initialize({
-    // startOnLoad: true,
-    theme: "default",
-    securityLevel: "loose",
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
     flowchart: {
-      curve: "linear",
+      curve: 'linear',
       diagramPadding: 0,
     },
   });
+
+  const editor = ace.edit('editor');
+  editor.getSession().setUseWorker(false);
+  editor.setTheme('ace/theme/monokai');
+  editor.getSession().setMode('ace/mode/json');
 </script>
+<script defer="defer" src="static/js/runtime.bundle.js"></script>
+<script defer="defer" src="static/js/main.bundle.js"></script>
 </body>
 </html>

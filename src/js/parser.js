@@ -29,6 +29,7 @@ export default class ExplainedDataParser {
    */
   _parseQueryBlockNode() {
     const { query_block: queryBlockData } = this.data;
+    console.log(queryBlockData);
     const queryBlockIdentifier = MermaidUtils.getQueryBlockIdentifier(this.idPrefix, queryBlockData.select_id);
     const { id } = queryBlockIdentifier;
     let { name } = queryBlockIdentifier;
