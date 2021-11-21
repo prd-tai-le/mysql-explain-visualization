@@ -26,7 +26,7 @@ function renderFlowchart(parser) {
   }, 1000);
 }
 
-editor.getSession().on('change', () => {
+function getAndParseContent() {
   const dataString = editor.getSession().getValue();
   try {
     const data = JSON.parse(dataString);
@@ -36,4 +36,10 @@ editor.getSession().on('change', () => {
   } catch {
     console.log('Failed to decode');
   }
+}
+
+editor.getSession().on('change', () => {
+  getAndParseContent();
 });
+
+getAndParseContent();
