@@ -2,6 +2,22 @@ import { NodeData } from './data_structure';
 import CommonUtils from './common';
 
 export default class MermaidUtils {
+  static ACCESS_TYPES = {
+    SYSTEM: 'Single row: system constant',
+    CONST: 'Single row: constant',
+    EQ_REF: 'Unique Key Lookup',
+    REF: 'Non-Unique Key Lookup',
+    REF_OR_NULL: 'Key Lookup + Fetch NULL Values',
+    INDEX_MERGE: 'Index Merge',
+    FULLTEXT: 'Fulltext Index Search',
+    UNIQUE_SUBQUERY: 'Unique Key Lookup into table of subquery',
+    INDEX_SUBQUERY: 'Non-Unique Key Lookup into table of subquery',
+    RANGE: 'Index Range Scan',
+    INDEX: 'Full Index Scan',
+    ALL: 'Full Table Scan',
+    UNKNOWN: 'unknown',
+  };
+
   /**
    * @param {NodeData} nodeData
    * @returns
@@ -12,7 +28,7 @@ export default class MermaidUtils {
 
     switch (type) {
       case 'table':
-        content = `${id}["<b>${displayName}</b><br>${MermaidUtils._getPrefixCostContent(additionalData, 'read_cost')}<br>${MermaidUtils._getIndexContent(additionalData)}"]`;
+        content = `${id}["<b>${displayName}</b><br>${MermaidUtils._getTableAccessType(additionalData)}<br>${MermaidUtils._getPrefixCostContent(additionalData, 'read_cost')}<br>${MermaidUtils._getIndexContent(additionalData)}"]`;
         break;
       case 'nested_loop':
         content = `${id}{"<b>${displayName}</b>"}`;
@@ -108,6 +124,10 @@ export default class MermaidUtils {
     style += ',stroke:#000,color:#fff';
 
     return style;
+  }
+
+  static _getTableAccessType({ access_type: accessType }) {
+    return `<i>Access type:</i> <b>${MermaidUtils.ACCESS_TYPES[accessType.toUpperCase()]}</b>`;
   }
 
   /**
